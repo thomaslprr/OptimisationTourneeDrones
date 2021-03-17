@@ -1,4 +1,5 @@
-#include("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/exo3.jl")
+#include("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/exo3.jl")
+#solve("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/A/VRPA10.dat")
 
 
 
@@ -11,7 +12,7 @@ function main()
 	b = Int[]
 	regroupement(1,6,a,10,[1,1,1,10,2,1,1,1],b)
 	println(a)
-	println(b)
+	println(deleteat!(a,1))
 end
 
 #regroupement : indice actuel, indice fin, regroupement, capacité, demandei, dernière valeur ajoutée
@@ -70,4 +71,26 @@ function test()
     println(listDistance)
 end
 
+function solve(nom_fichier::String)
+	
+    data = lecture_donnees(nom_fichier)
+	
+	println(data.demande)
+	println(data.capacite)
+	println(data.nbVilles)
+	
+	listeRegroupements = Vector{Int}[ []]
+	
+	regroupement(1,data.nbVilles-1,listeRegroupements,data.capacite,data.demande,Int[])
+	deleteat!(listeRegroupements,1)
+	
+    listDistance::Array{Int64} = Array{Int64}(undef, size(listeRegroupements,1))
+
+    for i in 1:size(listeRegroupements,1)
+        newC::Array{Int64,2} = data.distance;
+        newC = newC[setdiff(1:end, setdiff(2:size(data.distance,1), listeRegroupements[i])),setdiff(1:end, setdiff(2:size(data.distance,1), listeRegroupements[i]))];
+        listDistance[i] = solveTSPExact(newC)[2];
+    end
+    println(listDistance)
+end
 
