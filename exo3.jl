@@ -6,80 +6,15 @@
 include("Projet_Base.jl")
 
 
-
-function main()
-	a = Vector{Int}[ []]
-	b = Int[]
-	regroupement(1,6,a,10,[1,1,1,10,2,1,1,1],b)
-	println(a)
-	println(deleteat!(a,1))
-end
-
-#regroupement : indice actuel, indice fin, regroupement, capacité, demandei, dernière valeur ajoutée
-function regroupement(actuel::Int64, n::Int64, rg::Array{Array{Int64,1},1},ca::Int64, demande::Array{Int64,1},last::Array{Int64,1}) 
-	
-	for i in (actuel+1):n 
-		tabTmp::Array{Int64,1} = unique([last;[i]])
-		
-		if (peutEtreAjoute(tabTmp,demande,ca))
-			if sort(tabTmp) ∉ rg
-				push!(rg,tabTmp)
-			end
-			regroupement(actuel+1,n,rg,ca,demande,tabTmp)
-		end
-		
-	end
-	
-
-end
-
-
-function peutEtreAjoute(tableau::Array{Int64,1}, demande::Array{Int64,1}, ca::Int64)
-
-	tab::Array{Int64,1} = []
-
-	tailleTableau::Int64 = size(tableau,1)
-
-	for i in 1:tailleTableau
-		append!( tab, demande[tableau[i]])
-	end
-
-	if (foldl(+,tab)<=ca)
-		return true
-	end
-	return false
-
-end
-
-function test()
-    c::Array{Int64,2} = [  0 334 262 248 277 302;
-                         334   0 118 103 551 105;
-                         262 118   0 31  517 180;
-                         248 103 31    0 495 152;
-                         277 551 517 495   0 476;
-                         302 105 180 152 476   0;];
-
-    S::Array{Array{Int64}} = [[2],[2,3],[2,3,4],[2,3,4,6],[2,3,5],[2,3,6],[2,4],[2,4,5],[2,4,5,6]];
-
-    listDistance::Array{Int64} = Array{Int64}(undef, size(S,1))
-
-    for i in 1:size(S,1)
-        newC::Array{Int64,2} = c;
-        newC = newC[setdiff(1:end, setdiff(2:size(c,1), S[i])),setdiff(1:end, setdiff(2:size(c,1), S[i]))];
-        listDistance[i] = solveTSPExact(newC)[2];
-    end
-    println(listDistance)
-end
-
 function solve(nom_fichier::String)
-	
+
     data = lecture_donnees(nom_fichier)
-	
-	listeRegroupements = Vector{Int}[ []]
-	
-	regroupement(1,data.nbVilles-1,listeRegroupements,data.capacite,data.demande,Int[])
-	deleteat!(listeRegroupements,1)
-	
+    
+    listeRegroupements = Vector{Int}[ []]
+    
+    regroupement(1,data.nbVilles,listeRegroupements,data.capacite,data.demande,Int[])
+    deleteat!(listeRegroupements,1)
+    
     listDistance::Array{Int64} = Array{Int64}(undef, size(listeRegroupements,1))
 
     for i in 1:size(listeRegroupements,1)
@@ -87,6 +22,71 @@ function solve(nom_fichier::String)
         newC = newC[setdiff(1:end, setdiff(2:size(data.distance,1), listeRegroupements[i])),setdiff(1:end, setdiff(2:size(data.distance,1), listeRegroupements[i]))];
         listDistance[i] = solveTSPExact(newC)[2];
     end
-    println(listDistance)
+    
+    m::Model = Model(GLPK.Optimizer)
+
+    @variable(m,x[1:size(listeRegroupements,1)], binary = true);
+
+    @objective(m, Min, sum(listDistance[j]x[j] for j in 1:size(listeRegroupements,1)));
+
+    cConstraint::Array{Int64,2} = zeros(Int64,size(listeRegroupements,1),size(data.distance,1))
+
+    for i in 1:size(listeRegroupements,1)
+        cConstraint[CartesianIndex.(i, listeRegroupements[i])] .= 1
+    end
+
+    @constraint(m, ContrainteEtape[i=2:size(data.distance,1)], sum(cConstraint[j,i]*x[j] for j in 1:size(listeRegroupements,1)) == 1)
+
+    optimize!(m)
+   
+    status = termination_status(m)
+
+    if status == MOI.OPTIMAL
+        println("Problème résolu à l'optimalité")
+
+        println("z = ",objective_value(m))
+        println("x = ",value.(m[:x]))
+    elseif status == MOI.INFEASIBLE
+        println("Problème non-borné")
+
+    elseif status == MOI.INFEASIBLE_OR_UNBOUNDED
+        println("Problème impossible")
+    end
+
+end
+
+#regroupement : indice actuel, indice fin, regroupement, capacité, demandei, dernière valeur ajoutée
+function regroupement(actuel::Int64, n::Int64, rg::Array{Array{Int64,1},1},ca::Int64, demande::Array{Int64,1},last::Array{Int64,1}) 
+    
+    for i in (actuel+1):n 
+        tabTmp::Array{Int64,1} = unique([last;[i]])
+        
+        if (peutEtreAjoute(tabTmp,demande,ca))
+            if sort(tabTmp) ∉ rg
+                push!(rg,tabTmp)
+            end
+            regroupement(actuel+1,n,rg,ca,demande,tabTmp)
+        end
+        
+    end
+    
+
+end
+
+function peutEtreAjoute(tableau::Array{Int64,1}, demande::Array{Int64,1}, ca::Int64)
+
+    tab::Array{Int64,1} = []
+
+    tailleTableau::Int64 = size(tableau,1)
+
+    for i in 1:tailleTableau
+        append!( tab, demande[tableau[i]-1])
+    end
+
+    if (foldl(+,tab)<=ca)
+        return true
+    end
+    return false
+
 end
 
