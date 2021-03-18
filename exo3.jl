@@ -75,10 +75,6 @@ function solve(nom_fichier::String)
 	
     data = lecture_donnees(nom_fichier)
 	
-	println(data.demande)
-	println(data.capacite)
-	println(data.nbVilles)
-	
 	listeRegroupements = Vector{Int}[ []]
 	
 	regroupement(1,data.nbVilles-1,listeRegroupements,data.capacite,data.demande,Int[])
