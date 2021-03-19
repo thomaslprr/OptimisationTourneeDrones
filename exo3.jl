@@ -15,19 +15,19 @@ function solve(nom_fichier::String)
     regroupement(1,data.nbVilles,listeRegroupements,data.capacite,data.demande,Int[])
     deleteat!(listeRegroupements,1)
     
-    listDistance::Array{Int64} = Array{Int64}(undef, size(listeRegroupements,1))
+    listeDistance::Array{Int64} = Array{Int64}(undef, size(listeRegroupements,1))
 
     for i in 1:size(listeRegroupements,1)
         newC::Array{Int64,2} = data.distance;
         newC = newC[setdiff(1:end, setdiff(2:size(data.distance,1), listeRegroupements[i])),setdiff(1:end, setdiff(2:size(data.distance,1), listeRegroupements[i]))];
-        listDistance[i] = solveTSPExact(newC)[2];
+        listeDistance[i] = solveTSPExact(newC)[2];
     end
     
     m::Model = Model(GLPK.Optimizer)
 
     @variable(m,x[1:size(listeRegroupements,1)], binary = true);
 
-    @objective(m, Min, sum(listDistance[j]x[j] for j in 1:size(listeRegroupements,1)));
+    @objective(m, Min, sum(listeDistance[j]x[j] for j in 1:size(listeRegroupements,1)));
 
     cConstraint::Array{Int64,2} = zeros(Int64,size(listeRegroupements,1),size(data.distance,1))
 
@@ -45,7 +45,17 @@ function solve(nom_fichier::String)
         println("Problème résolu à l'optimalité")
 
         println("z = ",objective_value(m))
-        println("x = ",value.(m[:x]))
+
+        listeX::Array{Int64} = value.(m[:x])
+        cpt::Int64 = 1
+
+        for i in 1:size(listeX,1)
+            if listeX[i] == 1
+                println("Tournée ",cpt,": ",listeRegroupements[i])
+                cpt += 1
+            end
+        end
+
     elseif status == MOI.INFEASIBLE
         println("Problème non-borné")
 
