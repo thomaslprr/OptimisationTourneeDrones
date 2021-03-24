@@ -1,7 +1,7 @@
 #include("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/exo3.jl")
-#solve("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/A/VRPA10.dat")
+#solve("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/A/VRPA15.dat")
 
-
+#plus le saut de dualité est important au départ plus le nombre de noeuds sera importants et le problème sera dur
 
 include("Projet_Base.jl")
 
