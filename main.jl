@@ -1,7 +1,7 @@
-#include("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/exo3.jl")
-#solve("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/A/VRPA15.dat")
-
-#plus le saut de dualité est important au départ plus le nombre de noeuds sera importants et le problème sera dur
+#include("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/main.jl")
+#solve("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/A/VRPA35.dat")
+#Thomas LAPIERRE (684J) & Alex MAINGUY (684I)
+#plus le saut de dualité est important au départ plus le nombre de noeuds sera important et le problème sera dur à résoudre
 
 include("Projet_Base.jl")
 
@@ -11,12 +11,14 @@ function solve(nom_fichier::String)
     data = lecture_donnees(nom_fichier)
     
     listeRegroupements = Vector{Int}[ []]
-    
+	println("\nCalcul des regroupements possibles...")
     regroupement(1,data.nbVilles,listeRegroupements,data.capacite,data.demande,Int[])
     deleteat!(listeRegroupements,1)
+	println(size(listeRegroupements,1)," regroupements trouvés \n")
     
     listeDistance::Array{Tuple{Array{Int64},Int64}} = [];
 
+	println("Calcul de la distance minimale pour chaque regroupement...")
     #Calcul de la distance la plus courte pour chaque regroupement
     for i in 1:size(listeRegroupements,1)
         newC::Array{Int64,2} = data.distance;
@@ -30,6 +32,7 @@ function solve(nom_fichier::String)
         end
         deleteat!(listeDistance[i][1],1)
     end
+	println("Calcul de la distance minimale pour chaque regroupement terminé \n")
     
     m::Model = Model(GLPK.Optimizer)
 
@@ -46,6 +49,7 @@ function solve(nom_fichier::String)
 
     @constraint(m, ContrainteEtape[i=2:size(data.distance,1)], sum(cConstraint[j,i]*x[j] for j in 1:size(listeRegroupements,1)) == 1)
 
+	println("Lancement de l'optimisation")
     optimize!(m)
    
     status = termination_status(m)
@@ -83,8 +87,8 @@ function regroupement(actuel::Int64, n::Int64, rg::Array{Array{Int64,1},1},ca::I
         if (peutEtreAjoute(tabTmp,demande,ca))
             if sort(tabTmp) ∉ rg
                 push!(rg,tabTmp)
+	            regroupement(actuel+1,n,rg,ca,demande,tabTmp)
             end
-            regroupement(actuel+1,n,rg,ca,demande,tabTmp)
         end
         
     end
