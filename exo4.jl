@@ -77,7 +77,7 @@ function solve_CW(nom_fichier::String)
 			#Condition si le premier client est la dernière valeur de sa tournée et le deuxième client est la dernière valeur de sa tournée
 			elseif resultat[indice1][size(resultat[indice1],1)] == listeCouple[i][1] && resultat[indice2][size(resultat[indice2],1)] == listeCouple[i][2]
 				reverse!(resultat[indice1],1)
-				append!(resultat[indice2],resultat[indice1][j])
+				append!(resultat[indice2],resultat[indice1])
 				deleteat!(resultat,indice1)
 			end
 		end
