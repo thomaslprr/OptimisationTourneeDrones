@@ -1,11 +1,12 @@
-#include("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/main.jl")
-#solve("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/A/VRPA35.dat")
 #Thomas LAPIERRE (684J) & Alex MAINGUY (684I)
+
+
 #plus le saut de dualité est important au départ plus le nombre de noeuds sera important et le problème sera dur à résoudre
 
 include("Projet_Base.jl")
 
-
+#fonction à appeler pour lancer l'optimisation par la méthode exacte
+#prend l'adresse du fichier à optimiser en paramètre
 function solve(nom_fichier::String)
 
     data = lecture_donnees(nom_fichier)

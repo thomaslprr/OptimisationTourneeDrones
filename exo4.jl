@@ -1,9 +1,8 @@
-#include("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/exo4.jl")
-#creationDistancier("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/A/VRPA10.dat")
-#creationDistancier("/Users/thomaslapierre/Desktop/Licence Informatique/Semestre 6/Recherche opérationnelle/Projet/OptimisationTourneeDrones/exemple.dat")
-
+#LAPIERRE Thomas (684J) & Alex MAINGUY (684I)
 include("Projet_Base.jl")
 
+#fonction à appeler pour lancer l'optimisation par la méthode approchée
+#prend l'adresse du fichier à optimiser en paramètre
 function solve_CW(nom_fichier::String)
 
 	data = lecture_donnees(nom_fichier)
@@ -127,8 +126,6 @@ function creationDistancier(distanceInitiale::Array{Int64,2}, tailleMatrice::Int
  
  #distancierOptimise::Array{Int64,2} = Array{Int64,2}(undef,tailleMatrice,tailleMatrice)
  distancierOptimise::Vector{Tuple{Int64,Tuple{Int64,Int64}}} = []
- 
-
  
  #i les lignes, j les colonnes
  for i in 2:(tailleMatrice-1)
