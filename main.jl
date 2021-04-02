@@ -24,13 +24,6 @@ function solve(nom_fichier::String)
         newC::Array{Int64,2} = data.distance;
         newC = newC[setdiff(1:end, setdiff(2:size(data.distance,1), listeRegroupements[i])),setdiff(1:end, setdiff(2:size(data.distance,1), listeRegroupements[i]))];
         push!(listeDistance,solveTSPExact(newC));
-        for j in 1:size(listeRegroupements[i],1)
-            replace!(listeDistance[i][1], (j+1) => listeRegroupements[i][j])
-        end
-        while listeDistance[i][1][1] != 1
-            listeDistance[i] = (circshift(listeDistance[i][1],-1),listeDistance[i][2])
-        end
-        deleteat!(listeDistance[i][1],1)
     end
 	println("Calcul de la distance minimale pour chaque regroupement terminé \n")
     
@@ -55,6 +48,7 @@ function solve(nom_fichier::String)
     status = termination_status(m)
 
     if status == MOI.OPTIMAL
+        
         println("Problème résolu à l'optimalité")
         println()
         println("Distance totale: ",objective_value(m))
@@ -64,6 +58,17 @@ function solve(nom_fichier::String)
 
         for i in 1:size(listeX,1)
             if listeX[i] == 1
+
+                map!(x -> -x,listeDistance[i][1],listeDistance[i][1])
+                for j in 1:size(listeRegroupements[i],1)
+                    replace!(listeDistance[i][1], (-j-1) => listeRegroupements[i][j])
+                end
+                while listeDistance[i][1][1] != -1
+                    listeDistance[i] = (circshift(listeDistance[i][1],-1),listeDistance[i][2])
+                end
+                deleteat!(listeDistance[i][1],1)
+
+
                 println("Tournée ",cpt,": ",listeDistance[i][1]," => ",listeDistance[i][2])
                 cpt += 1
             end

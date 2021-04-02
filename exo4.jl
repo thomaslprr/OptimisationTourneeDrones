@@ -90,9 +90,23 @@ function solve_CW(nom_fichier::String)
 		end
 	end
 
+	distanceTournée::Array{Int64} = []
+	distanceTotale::Int64 = 0
+
+	for i in 1:size(resultat,1)
+		calcul::Int64 = distanceInitiale[1,resultat[i][1]] + distanceInitiale[1,resultat[i][size(resultat[i],1)]]
+		for j in 1:(size(resultat[i],1)-1)
+			calcul += distanceInitiale[resultat[i][j],resultat[i][j+1]]
+		end
+		push!(distanceTournée,calcul)
+		distanceTotale += calcul
+	end
+
+	println("Distance totale: ",distanceTotale)
+
 	cpt::Int64 = 1
 	for i in 1:size(resultat,1)
-		println("Tournée ",cpt,": ",resultat[i])
+		println("Tournée ",cpt,": ",resultat[i]," => ",distanceTournée[i])
 		cpt += 1
 	end
 end
